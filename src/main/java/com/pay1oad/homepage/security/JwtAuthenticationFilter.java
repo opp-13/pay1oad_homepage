@@ -25,14 +25,12 @@ import java.util.Arrays;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    String[] excludePath = {"/auth/signup", "/auth/login"};
-
     @Autowired
     private TokenProvider tokenProvider;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String[] excludePath = {"/auth/signup", "/auth/login"};
+        String[] excludePath = {"/auth/signup", "/auth/signin"};
         // 제외할 url 설정
         String path = request.getRequestURI();
         return Arrays.stream(excludePath).anyMatch(path::startsWith);
