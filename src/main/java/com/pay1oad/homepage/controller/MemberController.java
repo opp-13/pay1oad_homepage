@@ -57,6 +57,8 @@ public class MemberController {
                 memberDTO.getUsername(),
                 memberDTO.getPasswd());
 
+        log.info(memberDTO.getUsername()+"\n"+memberDTO.getPasswd()+"\n");
+
         if(member!=null){
             final String token=tokenProvider.create(member);
             final MemberDTO responseMemberDTO = MemberDTO.builder()
@@ -67,13 +69,28 @@ public class MemberController {
 
             return ResponseEntity.ok().body(responseMemberDTO);
         }else{
-            ResponseDTO responseDTO=ResponseDTO.builder()
-                    .error("Login Failed.")
-                    .build();
+            Member ckmember=memberService.checkID(
+                    memberDTO.getUsername()
+            );
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(responseDTO);
+            if(ckmember!=null){
+                ResponseDTO responseDTO=ResponseDTO.builder()
+                        .error("Password error.\nLogin Failed.")
+                        .build();
+
+                return ResponseEntity
+                        .badRequest()
+                        .body(responseDTO);
+            }else{
+                ResponseDTO responseDTO=ResponseDTO.builder()
+                        .error("Member not exist.\nLogin Failed.")
+                        .build();
+
+                return ResponseEntity
+                        .badRequest()
+                        .body(responseDTO);
+            }
+
         }
 
     }

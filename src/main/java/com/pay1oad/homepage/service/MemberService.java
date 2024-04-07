@@ -28,4 +28,8 @@ public class MemberService {
     public Member getByCredentials(final String username, final String passwd){
         return memberRepository.findByUsernameAndPasswd(username, passwd);
     }
+
+    public Member checkID(final String username){
+        return memberRepository.findByUsername(username);
+    }
 }
