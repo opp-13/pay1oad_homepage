@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String[] excludePath = {"/auth/signup", "/auth/signin"};
+        String[] excludePath = {"/auth/signup", "/auth/signin", "/verify/email"};
         // 제외할 url 설정
         String path = request.getRequestURI();
         return Arrays.stream(excludePath).anyMatch(path::startsWith);
@@ -58,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.setContext(securityContext);
 
             }else{
-                log.info("Authentication faild");
+                log.info("Authentication faild in JWT");
             }
         }catch(Exception ex){
             logger.error("Could not set user auth in security context", ex);

@@ -26,13 +26,16 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/verify/email")).permitAll()
                         //.requestMatchers(new AntPathRequestMatcher("/**")).permitAll()
+
                         .anyRequest().authenticated()
                 )
 
                 .csrf((csrf) -> csrf
                         .ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**"))
-                        .ignoringRequestMatchers(new AntPathRequestMatcher("/auth/**")))
+                        .ignoringRequestMatchers(new AntPathRequestMatcher("/auth/**"))
+                        .ignoringRequestMatchers(new AntPathRequestMatcher("/verify/email")))
                 .headers((headers) -> headers
                         .addHeaderWriter(new XFrameOptionsHeaderWriter(
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))

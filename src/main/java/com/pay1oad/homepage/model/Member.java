@@ -23,7 +23,7 @@ import java.util.List;
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String userid;
+    private Integer userid;
 
     @Column(nullable = false)
     private String username;
@@ -35,6 +35,8 @@ public class Member {
     private String role;
 
     private String authProvider;
+
+    private Boolean verified;
 
     @OneToMany(mappedBy = "member")
     private List<Post> posts;

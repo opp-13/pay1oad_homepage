@@ -20,8 +20,13 @@ public class MemberService {
             log.warn("Username already exists {}", username);
             throw new RuntimeException("Username already exists");
         }
+        final String email=member.getEmail();
+        final String verified= String.valueOf(false);
 
+        return memberRepository.save(member);
+    }
 
+    public Member save(final Member member){
         return memberRepository.save(member);
     }
 

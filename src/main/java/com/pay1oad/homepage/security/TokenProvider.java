@@ -25,7 +25,7 @@ public class TokenProvider {
 
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY )
-                .setSubject(member.getUserid())
+                .setSubject(String.valueOf(member.getUserid()))
                 .setIssuer("Pay1oad Homepage")
                 .setIssuedAt(new Date())
                 .setExpiration(expireDate)
