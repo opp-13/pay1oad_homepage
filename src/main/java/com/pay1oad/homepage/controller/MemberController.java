@@ -50,6 +50,8 @@ public class MemberController {
                 throw new RuntimeException("Passwd value null");
             }else if(!validPasswd(memberDTO.getPasswd())){
                 throw new RuntimeException("invalid Passwd value");
+            }else if (!validEmail(memberDTO.getEmail())) {
+                throw new RuntimeException("invalid Email");
             }
 
             Member member =Member.builder()
@@ -150,5 +152,11 @@ public class MemberController {
         String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$";
 
         return passwd.matches(pattern);
+    }
+
+    private boolean validEmail(String email){
+        String pattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+
+        return email.matches(pattern);
     }
 }
