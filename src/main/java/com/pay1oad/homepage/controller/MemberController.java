@@ -47,6 +47,8 @@ public class MemberController {
     public ResponseEntity<?> registerUser(@RequestBody MemberDTO memberDTO) {
         try {
             if (memberDTO==null||memberDTO.getPasswd()==null){
+                throw new RuntimeException("Passwd value null");
+            }else if(!validPasswd(memberDTO.getPasswd())){
                 throw new RuntimeException("invalid Passwd value");
             }
 
@@ -139,5 +141,14 @@ public class MemberController {
         buffer.append(System.lineSeparator()).append(System.lineSeparator());
         buffer.append("감사합니다.").append(System.lineSeparator());
         return buffer.toString();
+    }
+
+    private boolean validPasswd(String passwd){
+        if(passwd.length() < 8)
+            return false;
+
+        String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$";
+
+        return passwd.matches(pattern);
     }
 }
