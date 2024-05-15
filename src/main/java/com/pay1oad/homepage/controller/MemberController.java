@@ -3,9 +3,11 @@ package com.pay1oad.homepage.controller;
 import com.pay1oad.homepage.dto.MemberDTO;
 import com.pay1oad.homepage.dto.ResponseDTO;
 //import com.pay1oad.homepage.event.UserRegistrationEvent;
+import com.pay1oad.homepage.model.JwtList;
 import com.pay1oad.homepage.model.Member;
 import com.pay1oad.homepage.security.TokenProvider;
 import com.pay1oad.homepage.service.EmailVerificationService;
+import com.pay1oad.homepage.service.JwtRedisService;
 import com.pay1oad.homepage.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -32,6 +35,9 @@ public class MemberController {
 
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private JwtRedisService jwtRedisService;
 
 
     /*private final JavaMailSender mailSender;
@@ -93,6 +99,27 @@ public class MemberController {
                     .token(token)
                     .build();
 
+            //redis
+
+            //Already signed in
+            if(jwtRedisService.getJwtListById(memberDTO.getUsername())){
+                jwtRedisService.deleteJwtListById(memberDTO.getUsername());
+            }
+
+            //add logged in list
+            JwtList jwtlist=jwtRedisService.addJwtList(new JwtList(member.getUsername(), token));
+            if(jwtlist==null){
+                ResponseDTO responseDTO=ResponseDTO.builder()
+                        .error("Jwt insertion error.\nLogin Failed.")
+                        .build();
+
+                return ResponseEntity
+                        .badRequest()
+                        .body(responseDTO);
+            }
+            log.info(jwtlist.getUsername());
+            log.info(jwtlist.getJwt());
+
             return ResponseEntity.ok().body(responseMemberDTO);
         }else{
             Member ckmember=memberService.checkID(
@@ -119,6 +146,16 @@ public class MemberController {
 
         }
 
+    }
+
+    @PostMapping("/signout")
+    public void signout(){
+        Member member = (Member) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(jwtRedisService.deleteJwtListById(member.getUsername())){
+            ;
+        }else{
+            ;
+        }
     }
 
     @GetMapping("/test")

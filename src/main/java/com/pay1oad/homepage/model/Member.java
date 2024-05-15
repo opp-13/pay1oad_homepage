@@ -38,6 +38,6 @@ public class Member {
 
     private Boolean verified;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private List<Post> posts;
 }

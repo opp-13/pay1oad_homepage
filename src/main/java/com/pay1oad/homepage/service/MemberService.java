@@ -37,4 +37,8 @@ public class MemberService {
     public Member checkID(final String username){
         return memberRepository.findByUsername(username);
     }
+
+    public Member getUsername(final Integer userid){
+        return memberRepository.findByUserid(userid);
+    }
 }
