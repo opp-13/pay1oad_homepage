@@ -38,7 +38,12 @@ public class MemberService {
         return memberRepository.findByUsername(username);
     }
 
-    public Member getUsername(final Integer userid){
-        return memberRepository.findByUserid(userid);
+    public String getUsername(final Integer userid){
+        Member member=memberRepository.findByUserid(userid);
+        if(member!=null){
+            return member.getUsername();
+        }else{
+            return null;
+        }
     }
 }
