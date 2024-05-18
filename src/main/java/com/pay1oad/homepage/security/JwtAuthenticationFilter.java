@@ -22,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 
 
 @Slf4j
@@ -59,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.info("Userid: "+userID);
                 String Username= String.valueOf(memberService.getUsername(Integer.valueOf(userID)));
                 log.info("Username: "+Username);
-                if(jwtRedisService.getJwtById(Username, token)){//jwtRedisService.getJwtListByJwt(token)
+                if(Objects.equals(jwtRedisService.getValues(Username), token)){//jwtRedisService.getJwtListByJwt(token)
                     log.info("Authenticated user Name"+userID);
                     AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userID,

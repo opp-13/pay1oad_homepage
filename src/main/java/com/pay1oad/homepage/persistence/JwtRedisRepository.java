@@ -9,5 +9,5 @@ public interface JwtRedisRepository extends CrudRepository<JwtList, String> {
 
     JwtList findByJwt(String jwt);
 
-    JwtList deleteByUsername(String username);
+    void deleteByUsername(String username);
 }

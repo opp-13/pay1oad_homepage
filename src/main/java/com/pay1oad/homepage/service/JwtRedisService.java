@@ -4,63 +4,69 @@ import com.pay1oad.homepage.model.JwtList;
 import com.pay1oad.homepage.persistence.JwtRedisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class JwtRedisService {
     private final JwtRedisRepository jwtRedisRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    @Transactional
-    public JwtList addJwtList(JwtList jwtList){
-        JwtList save=jwtRedisRepository.save(jwtList);
+    public void setValues(String key, String data) {
+        ValueOperations<String, Object> values = redisTemplate.opsForValue();
+        values.set(key, data);
+    }
 
-        Optional<JwtList> result = Optional.ofNullable(jwtRedisRepository.findByUsername(save.getUsername()));
-
-        if(result.isPresent()) {
-            log.info("jwt saved");
-            return result.get();
-        }else {throw new RuntimeException("Jwt not Saved.");}
+    public void setValues(String key, String data, Duration duration) {
+        ValueOperations<String, Object> values = redisTemplate.opsForValue();
+        values.set(key, data, duration);
     }
 
     @Transactional(readOnly = true)
-    public boolean getJwtListById(String reqId) {
-        Optional<JwtList> result = Optional.ofNullable(jwtRedisRepository.findByUsername(reqId));
-        log.info("jwt exist, find by id");
-        // Handling
-        return result.isPresent();
+    public String getValues(String key) {
+        ValueOperations<String, Object> values = redisTemplate.opsForValue();
+        if (values.get(key) == null) {
+            return "false";
+        }
+        return (String) values.get(key);
+    }
+
+    public void deleteValues(String key) {
+        redisTemplate.delete(key);
+    }
+
+    public void expireValues(String key, int timeout) {
+        redisTemplate.expire(key, timeout, TimeUnit.MILLISECONDS);
+    }
+
+    public void setHashOps(String key, Map<String, String> data) {
+        HashOperations<String, Object, Object> values = redisTemplate.opsForHash();
+        values.putAll(key, data);
     }
 
     @Transactional(readOnly = true)
-    public boolean getJwtById(String reqId, String jwt) {
-        Optional<JwtList> result = Optional.ofNullable(jwtRedisRepository.findByUsername(reqId));
-        log.info(result.get().getJwt());
-        if(result.isPresent() && result.get().getJwt().equals(jwt)){
-            log.info("jwt exist, find by jwt");
-            return true;
-        } else {
-            log.info("jwt not exist, find by jwt");
-            return false;
-        }
+    public String getHashOps(String key, String hashKey) {
+        HashOperations<String, Object, Object> values = redisTemplate.opsForHash();
+        return Boolean.TRUE.equals(values.hasKey(key, hashKey)) ? (String) redisTemplate.opsForHash().get(key, hashKey) : "";
     }
 
-    @Transactional
-    public boolean deleteJwtListById(String reqId) {
-        Optional<JwtList> result = Optional.ofNullable(jwtRedisRepository.findByUsername(reqId));
+    public void deleteHashOps(String key, String hashKey) {
+        HashOperations<String, Object, Object> values = redisTemplate.opsForHash();
+        values.delete(key, hashKey);
+    }
 
-        // Handling
-        if(result.isPresent()) {
-            jwtRedisRepository.deleteByUsername(reqId);
-            log.info("jwt delete");
-            return true;
-        }else {
-            log.info("jwt delete failed, not exist");
-            return false;
-        }
+    public boolean checkExistsValue(String value) {
+        return !value.equals("false");
     }
 
 }

@@ -15,7 +15,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -102,23 +104,13 @@ public class MemberController {
             //redis
 
             //Already signed in
-            if(jwtRedisService.getJwtListById(memberDTO.getUsername())){
-                jwtRedisService.deleteJwtListById(memberDTO.getUsername());
+            if(jwtRedisService.getValues(memberDTO.getUsername())!=null){
+                jwtRedisService.deleteValues(memberDTO.getUsername());
             }
 
             //add logged in list
-            JwtList jwtlist=jwtRedisService.addJwtList(new JwtList(member.getUsername(), token));
-            if(jwtlist==null){
-                ResponseDTO responseDTO=ResponseDTO.builder()
-                        .error("Jwt insertion error.\nLogin Failed.")
-                        .build();
+            jwtRedisService.setValues(member.getUsername(), token);
 
-                return ResponseEntity
-                        .badRequest()
-                        .body(responseDTO);
-            }
-            log.info(jwtlist.getUsername());
-            log.info(jwtlist.getJwt());
 
             return ResponseEntity.ok().body(responseMemberDTO);
         }else{
@@ -150,12 +142,33 @@ public class MemberController {
 
     @PostMapping("/signout")
     public void signout(){
-        Member member = (Member) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(jwtRedisService.deleteJwtListById(member.getUsername())){
-            ;
-        }else{
-            ;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            Object principal = authentication.getPrincipal();
+            String userid;
+
+            if (principal instanceof UserDetails) {
+                userid = ((UserDetails) principal).getUsername();
+            } else if (principal instanceof String) {
+                userid = (String) principal;
+            } else {
+                throw new IllegalStateException("Unexpected principal type: " + principal.getClass());
+            }
+
+            log.info("userid in signout: "+userid);
+
+            String username=memberService.getUsername(Integer.valueOf(userid));
+            log.info("username in signout: "+username);
+
+            //logout
+            jwtRedisService.deleteValues(username);
+
+        } else {
+            // 인증 정보가 없는 경우 처리
+            System.out.println("인증 정보 없음");
         }
+
+
     }
 
     @GetMapping("/test")
