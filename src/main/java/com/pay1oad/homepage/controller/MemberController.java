@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Base64;
+import java.util.Objects;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
@@ -141,7 +142,8 @@ public class MemberController {
     }
 
     @PostMapping("/signout")
-    public void signout(){
+    public String signout(){
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             Object principal = authentication.getPrincipal();
@@ -155,19 +157,27 @@ public class MemberController {
                 throw new IllegalStateException("Unexpected principal type: " + principal.getClass());
             }
 
+
+
             log.info("userid in signout: "+userid);
+            if(!Objects.equals(userid, "anonymousUser")){
+                String username=memberService.getUsername(Integer.valueOf(userid));
+                log.info("username in signout: "+username);
 
-            String username=memberService.getUsername(Integer.valueOf(userid));
-            log.info("username in signout: "+username);
+                //logout
+                jwtRedisService.deleteValues(username);
 
-            //logout
-            jwtRedisService.deleteValues(username);
+                return "signed out: "+username;
+            }else{
+                return "anonymousUser";
+            }
+
 
         } else {
             // 인증 정보가 없는 경우 처리
             System.out.println("인증 정보 없음");
+            return "인증 정보 없음";
         }
-
 
     }
 
