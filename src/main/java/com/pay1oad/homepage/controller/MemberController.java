@@ -44,6 +44,7 @@ public class MemberController {
     private JwtRedisService jwtRedisService;
 
 
+
     /*private final JavaMailSender mailSender;
     private final EmailVerificationService verificationService;
 
@@ -183,42 +184,28 @@ public class MemberController {
     }
 
     @PostMapping("/refreshToken")
-    public String refresh(String token){
+    public String refresh(@RequestHeader("Authorization") String authorizationHeader){
+        //get token
+        String token = null;
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            Object principal = authentication.getPrincipal();
-            String userid;
-
-            if (principal instanceof UserDetails) {
-                userid = ((UserDetails) principal).getUsername();
-            } else if (principal instanceof String) {
-                userid = (String) principal;
-            } else {
-                throw new IllegalStateException("Unexpected principal type: " + principal.getClass());
-            }
-
-
-
-            log.info("userid in refresh: "+userid);
-            if(!Objects.equals(userid, "anonymousUser")){
-                String username=memberService.getUsername(Integer.valueOf(userid));
-                log.info("Refreshed: "+username);
-
-                //logout
-                jwtRedisService.setValues(username, token, Duration.ofSeconds(600));
-
-                return "refreshed: "+username;
-            }else{
-                return "anonymousUser";
-            }
-
-
-        } else {
-            // 인증 정보가 없는 경우 처리
-            System.out.println("인증 정보 없음");
-            return "인증 정보 없음";
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            token = authorizationHeader.substring(7);
+        }else{
+            return "Toekn is not valid";
         }
+        log.info("token: "+token);
+
+        //get username
+        int userid= Integer.parseInt(tokenProvider.validateAndGetUserId(token));
+        String username=memberService.getUsername(userid);
+
+
+        log.info("Refreshed: "+username);
+
+        //refresh
+        jwtRedisService.setValues(username, token, Duration.ofSeconds(600));
+
+        return "refreshed: "+username;
 
     }
 
