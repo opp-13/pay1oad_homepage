@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.context.ApplicationEventPublisher;
 
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Objects;
 
@@ -110,7 +111,7 @@ public class MemberController {
             }
 
             //add logged in list
-            jwtRedisService.setValues(member.getUsername(), token);
+            jwtRedisService.setValues(member.getUsername(), token, Duration.ofSeconds(600));
 
 
             return ResponseEntity.ok().body(responseMemberDTO);
@@ -168,6 +169,46 @@ public class MemberController {
                 jwtRedisService.deleteValues(username);
 
                 return "signed out: "+username;
+            }else{
+                return "anonymousUser";
+            }
+
+
+        } else {
+            // 인증 정보가 없는 경우 처리
+            System.out.println("인증 정보 없음");
+            return "인증 정보 없음";
+        }
+
+    }
+
+    @PostMapping("/refreshToken")
+    public String refresh(String token){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            Object principal = authentication.getPrincipal();
+            String userid;
+
+            if (principal instanceof UserDetails) {
+                userid = ((UserDetails) principal).getUsername();
+            } else if (principal instanceof String) {
+                userid = (String) principal;
+            } else {
+                throw new IllegalStateException("Unexpected principal type: " + principal.getClass());
+            }
+
+
+
+            log.info("userid in refresh: "+userid);
+            if(!Objects.equals(userid, "anonymousUser")){
+                String username=memberService.getUsername(Integer.valueOf(userid));
+                log.info("Refreshed: "+username);
+
+                //logout
+                jwtRedisService.setValues(username, token, Duration.ofSeconds(600));
+
+                return "refreshed: "+username;
             }else{
                 return "anonymousUser";
             }

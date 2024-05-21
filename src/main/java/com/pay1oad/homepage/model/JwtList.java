@@ -4,7 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-@RedisHash(value = "username", timeToLive = 86400) // 1일 저장
+@RedisHash(value = "username", timeToLive = 10) // 1일 저장
 @Getter
 @Setter
 @ToString
