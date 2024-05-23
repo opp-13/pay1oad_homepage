@@ -160,10 +160,10 @@ public class MemberController {
 
 
 
-            log.info("userid in signout: "+userid);
+            log.info("userid in signout: "+userid.replaceAll("[\r\n]",""));
             if(!Objects.equals(userid, "anonymousUser")){
                 String username=memberService.getUsername(Integer.valueOf(userid));
-                log.info("username in signout: "+username);
+                log.info("username in signout: "+username.replaceAll("[\r\n]",""));
 
                 //logout
                 jwtRedisService.deleteValues(username);
@@ -200,10 +200,10 @@ public class MemberController {
 
 
 
-            log.info("userid in refresh: "+userid);
+            log.info("userid in refresh: "+userid.replaceAll("[\r\n]",""));
             if(!Objects.equals(userid, "anonymousUser")){
                 String username=memberService.getUsername(Integer.valueOf(userid));
-                log.info("Refreshed: "+username);
+                log.info("Refreshed: "+username.replaceAll("[\r\n]",""));
 
                 //logout
                 jwtRedisService.setValues(username, token, Duration.ofSeconds(600));

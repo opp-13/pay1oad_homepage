@@ -49,17 +49,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try{
-            log.info("request "+ request);
+            //log.info("request "+ request);
             String token=parseBearerToken(request);
             log.info("Filter is runnung...");
-            log.info("Token "+token);
+            //log.info("Token "+token.replaceAll("[\r\n]",""));
 
             if(token!=null&&!token.equalsIgnoreCase("null")){
                 //validate login
                 String userID=tokenProvider.validateAndGetUserId(token);
-                log.info("Userid: "+userID);
+                //log.info("Userid: "+userID);
                 String Username= String.valueOf(memberService.getUsername(Integer.valueOf(userID)));
-                log.info("Username: "+Username);
+                //log.info("Username: "+Username);
                 if(Objects.equals(jwtRedisService.getValues(Username), token)){//jwtRedisService.getJwtListByJwt(token)
                     log.info("Authenticated user Name"+userID);
                     AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
