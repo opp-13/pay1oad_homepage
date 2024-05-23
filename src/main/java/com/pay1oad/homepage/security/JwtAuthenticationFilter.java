@@ -61,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String Username= String.valueOf(memberService.getUsername(Integer.valueOf(userID)));
                 //log.info("Username: "+Username);
                 if(Objects.equals(jwtRedisService.getValues(Username), token)){//jwtRedisService.getJwtListByJwt(token)
-                    log.info("Authenticated user Name"+userID);
+                    log.info("Authenticated user Name"+userID.replaceAll("[\r\n]",""));
                     AbstractAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userID,
                             null,

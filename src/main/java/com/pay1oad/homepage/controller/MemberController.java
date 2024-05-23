@@ -94,7 +94,7 @@ public class MemberController {
                 memberDTO.getUsername(),
                 memberDTO.getPasswd());
 
-        log.info(memberDTO.getUsername()+"\n"+memberDTO.getPasswd()+"\n");
+        //log.info(memberDTO.getUsername()+"\n"+memberDTO.getPasswd()+"\n");
         if(member!=null){
             final String token=tokenProvider.create(member);
             final MemberDTO responseMemberDTO = MemberDTO.builder()
@@ -161,10 +161,10 @@ public class MemberController {
 
 
 
-            log.info("userid in signout: "+userid);
+            //log.info("userid in signout: "+userid);
             if(!Objects.equals(userid, "anonymousUser")){
                 String username=memberService.getUsername(Integer.valueOf(userid));
-                log.info("username in signout: "+username);
+                log.info("username in signout: "+username.replaceAll("[\r\n]",""));
 
                 //logout
                 jwtRedisService.deleteValues(username);
@@ -193,14 +193,14 @@ public class MemberController {
         }else{
             return "Toekn is not valid";
         }
-        log.info("token: "+token);
+        //log.info("token: "+token);
 
         //get username
         int userid= Integer.parseInt(tokenProvider.validateAndGetUserId(token));
         String username=memberService.getUsername(userid);
 
 
-        log.info("Refreshed: "+username);
+        log.info("Refreshed: "+username.replaceAll("[\r\n]",""));
 
         //refresh
         jwtRedisService.setValues(username, token, Duration.ofSeconds(600));
@@ -209,15 +209,15 @@ public class MemberController {
 
     }
 
-    @GetMapping("/test")
-    public String getSbbText() {
-        return "sbb";
-    }
-
-    @PostMapping("/test")
-    public String postToSbb() {
-        return "sbb";
-    }
+//    @GetMapping("/test")
+//    public String getSbbText() {
+//        return "sbb";
+//    }
+//
+//    @PostMapping("/test")
+//    public String postToSbb() {
+//        return "sbb";
+//    }
 
     private String getText(Member member, String verificationId) {
         String encodedVerificationId = new String(Base64.getEncoder().encode(verificationId.getBytes()));

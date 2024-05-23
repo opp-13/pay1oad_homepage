@@ -17,7 +17,7 @@ public class MemberService {
         }
         final String username=member.getUsername();
         if(memberRepository.existsByUsername(username)){
-            log.warn("Username already exists {}", username);
+            log.warn("Username already exists {}", username.replaceAll("[\r\n]",""));
             throw new RuntimeException("Username already exists");
         }
         final String email=member.getEmail();
