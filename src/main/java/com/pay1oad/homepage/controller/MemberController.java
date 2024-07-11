@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Duration;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Objects;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -69,6 +70,7 @@ public class MemberController {
                     .username(memberDTO.getUsername())
                     .passwd(memberDTO.getPasswd())
                     .email(memberDTO.getEmail())
+
                     .build();
 
             Member resisteredByMember=memberService.create(member);

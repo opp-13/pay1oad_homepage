@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -32,7 +33,8 @@ public class Member {
 
     private String email;
 
-    private String role;
+    @Column(nullable = false)
+    private MemberAuth memberAuth;
 
     private String authProvider;
 
